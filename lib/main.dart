@@ -10,7 +10,7 @@ void main() async {
   await Hive.initFlutter();
   Hive.registerAdapter(NoteAdapter());
 
-  //await Hive.deleteBoxFromDisk('notes'); //to be deleted in prod
+//  await Hive.deleteBoxFromDisk('notes'); //to be deleted in prod
 
   await Hive.openBox<Note>('notes');
 
