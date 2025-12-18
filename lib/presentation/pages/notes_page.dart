@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
-import 'package:notes_it/models/note.dart';
+import 'package:notes_it/data/models/note.dart';
 
 class NotesPage extends StatefulWidget {
   final Note? note;

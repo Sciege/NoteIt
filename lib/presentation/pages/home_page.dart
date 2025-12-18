@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:notes_it/presentation/pages/notes_page.dart';
 
-import '../../models/note.dart';
-import '../../models/todolist.dart';
+import '../../data/models/note.dart';
+import '../../data/models/todolist.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});

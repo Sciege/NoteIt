@@ -3,7 +3,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:notes_it/presentation/app_theme.dart';
 import 'package:notes_it/presentation/pages/home_page.dart';
 
-import 'models/note.dart';
+import 'data/models/note.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
