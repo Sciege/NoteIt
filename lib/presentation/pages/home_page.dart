@@ -3,6 +3,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:notes_it/presentation/pages/notes_page.dart';
 
 import '../../models/note.dart';
+import '../../models/todolist.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -13,9 +14,17 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _selectedTab = 0; // Changes when clicked
+  final ScrollController _scrollController = ScrollController();
+  late double screenHeight = MediaQuery.of(
+    context,
+  ).size.height; // For responsive height
+  late double screenWidth = MediaQuery.of(
+    context,
+  ).size.width; // For responsive width
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       backgroundColor: const Color(0xFF181818),
       appBar: AppBar(
@@ -31,7 +40,7 @@ class _HomePageState extends State<HomePage> {
           children: [
             // Title
             const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 24.0),
+              padding: EdgeInsets.symmetric(horizontal: 24),
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
@@ -52,39 +61,53 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             const SizedBox(height: 20),
-            Expanded(
-              child: ValueListenableBuilder<Box<Note>>(
-                valueListenable: Hive.box<Note>('notes').listenable(),
-                builder: (context, box, _) {
-                  if (box.values.isEmpty) {
-                    return const Center(
-                      child: Text(
-                        "You don't have any notes yet.",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    );
-                  }
+            Container(
+              // consume only portion of the screen
+              height: MediaQuery.of(context).size.height * 0.3,
+              child: Scrollbar(
+                controller: _scrollController,
+                child: ValueListenableBuilder<Box<Note>>(
+                  valueListenable: Hive.box<Note>('notes').listenable(),
+                  builder: (context, box, _) {
+                    if (box.values.isEmpty) {
+                      return const Center(
+                        child: Text(
+                          "You don't have any notes yet.",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      );
+                    }
 
-                  // Filter based on selected tab
-                  final notes = box.values.toList();
-                  final displayedNotes = _selectedTab == 0
-                      ? notes
-                      : notes.where((note) => note.isPinned).toList();
+                    // Filter based on selected tab
+                    final notes = box.values.toList();
+                    final displayedNotes = _selectedTab == 0
+                        ? notes
+                        : notes.where((note) => note.isPinned).toList();
 
-                  if (displayedNotes.isEmpty) {
-                    return const Center(
-                      child: Text(
-                        "No pinned notes yet.",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    );
-                  }
-                  return _buildNotesList(displayedNotes);
-                },
+                    if (displayedNotes.isEmpty) {
+                      return const Center(
+                        child: Text(
+                          "No pinned notes yet.",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      );
+                    }
+                    return _buildNotesList(displayedNotes);
+                  },
+                ),
               ),
             ),
-            Divider(height: 5),
-            Row(children: [Container()]),
+            Divider(height: screenHeight * 0.03, color: Color(0xFF181818)),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: Row(
+                children: [
+                  _buildTodoList(),
+                  Spacer(),
+                  _buildPrivate(),
+                ],
+              ),
+            ),
           ],
         ),
       ),
@@ -93,6 +116,46 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  Widget _buildTodoList() {
+    return Row(
+      children: [
+        Padding(
+          padding: EdgeInsetsGeometry.symmetric(horizontal: 0),
+          // todolist
+          child: Container(
+            height: screenHeight * 0.3,
+            width: screenWidth * 0.41,
+            padding: EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: Color(0xFF242424),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            // todolist viewbuilder
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPrivate() {
+    return Row(
+      children: [
+        Padding(
+          padding: EdgeInsetsGeometry.symmetric(horizontal: 0),
+          // todolist
+          child: Container(
+            height: screenHeight * 0.3,
+            width: screenWidth * 0.41,
+            padding: EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: Color(0xFF242424),
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
   Widget _buildNotesList(List<Note> displayedNotes) {
     return ListView.builder(
       itemCount: displayedNotes.length,
