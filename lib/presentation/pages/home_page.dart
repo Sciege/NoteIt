@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:notes_it/presentation/pages/notes_page.dart';
+import 'package:notes_it/presentation/pages/todolist_page.dart';
 
+//notes
 import '../../data/mapper/note_mapper.dart';
 import '../../data/models/note.dart' as hive;
 import '../../domain/models/note.dart' as domain;
+
+//todolist
+import '../../data/models/todolist.dart' as hiveTodo;
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -85,12 +90,16 @@ class _HomePageState extends State<HomePage> {
 
                   final displayedNotes = _selectedTab == 0
                       ? domainNotes.reversed.toList()
-                      : domainNotes.reversed.where((note) => note.isPinned).toList();
+                      : domainNotes.reversed
+                            .where((note) => note.isPinned)
+                            .toList();
 
                   if (displayedNotes.isEmpty) {
                     return Center(
                       child: Text(
-                        _selectedTab == 1 ? "No pinned notes." : "You don't have any notes yet.",
+                        _selectedTab == 1
+                            ? "No pinned notes."
+                            : "You don't have any notes yet.",
                         style: const TextStyle(color: Colors.white),
                       ),
                     );
@@ -104,7 +113,80 @@ class _HomePageState extends State<HomePage> {
               padding: const EdgeInsets.symmetric(horizontal: 24.0),
               child: Row(
                 children: [
-                  _buildTodoList(screenHeight, screenWidth),
+                  //TODO
+                  // ValueListenableBuilder<Box<hiveTodo.Todolist>>(
+                  //   valueListenable: Hive
+                  //       .box<hiveTodo.Todolist>('todolist')
+                  //       .listenable(),
+                  //   builder: (context, box, _){
+                  //     if(box.isEmpty){
+                  //       return Center(
+                  //         child: Text('No todos')
+                  //       );
+                  //     }
+                  //     return
+                  //   },
+                  //   child:,
+                  // ),
+                  Container(
+                    height: screenHeight * 0.3,
+                    width: screenWidth * 0.41,
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF242424),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: ValueListenableBuilder<Box<hiveTodo.Todolist>>(
+                      valueListenable: Hive.box<hiveTodo.Todolist>(
+                        'todos',
+                      ).listenable(),
+                      builder: (context, box, _) {
+                        // Filter not done
+                        final activeTodos = box.values
+                            .where((todo) => !todo.isDone)
+                            .toList();
+                        Widget contentWidget;
+
+                        if (activeTodos.isEmpty) {
+                          contentWidget = const Center(
+                            child: Text(
+                              'No active todos',
+                              style: TextStyle(
+                                color: Color(0xFFF6D14C),
+                                fontSize: 12,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          );
+                        } else {
+                          contentWidget = ListView.builder(
+                            itemCount: activeTodos.length,
+                            itemBuilder: (context, index) {
+                              return _buildtoDoCard(activeTodos[index]);
+                            },
+                          );
+                        }
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // THE PERMANENT TITLE
+                            const Text(
+                              'Todos',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 5),
+
+                            Expanded(child: contentWidget),
+                          ],
+                        );
+                      },
+                    ),
+                  ),
+                  //_buildTodoList(screenHeight, screenWidth, hiveTodo),
                   const Spacer(),
                   _buildPrivate(screenHeight, screenWidth),
                 ],
@@ -118,14 +200,71 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildTodoList(double screenHeight, double screenWidth) {
+  //TODO
+  Widget _buildTodoList(List<hiveTodo.Todolist> todos) {
     return Container(
-      height: screenHeight * 0.3,
-      width: screenWidth * 0.41,
-      padding: const EdgeInsets.all(10),
+      padding: const EdgeInsets.all(0),
       decoration: BoxDecoration(
         color: const Color(0xFF242424),
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(15),
+      ),
+      child: ListView.builder(
+        itemCount: todos.length,
+        itemBuilder: (context, index) {
+          final todo = todos[index];
+          return _buildtoDoCard(todo);
+        },
+      ),
+    );
+  }
+
+  Widget _buildtoDoCard(hiveTodo.Todolist todo) {
+    return Card(
+      color: const Color(0xFF202020),
+      margin: const EdgeInsets.symmetric(horizontal: 1, vertical: 5),
+      child: ListTile(
+        horizontalTitleGap: 0,
+        contentPadding: EdgeInsets.zero,
+        onTap: () {
+          // TODO: Navigate to edit todo page
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => TodolistPage(todos: todo)),
+          );
+        },
+        leading: Checkbox(
+          value: todo.isDone,
+          activeColor: const Color(0xFFF6D14C),
+          onChanged: (bool? value) {
+            // Toggle completion
+            todo.isDone = value ?? false;
+            todo.save(); // Save to Hive
+          },
+        ),
+        title: Text(
+          todo.todoList.length >= 8
+              ? todo.todoList.substring(0, 8) + '...'
+              : todo.todoList,
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            decoration: todo.isDone ? TextDecoration.lineThrough : null,
+          ),
+        ),
+        // subtitle: todo.description.isNotEmpty
+        //     ? Text(
+        //         todo.description,
+        //         style: const TextStyle(color: Colors.grey),
+        //         maxLines: 1,
+        //         overflow: TextOverflow.ellipsis,
+        //       )
+        //     : null,
+        // trailing: IconButton(
+        //   icon: const Icon(Icons.delete, color: Colors.grey),
+        //   onPressed: () {
+        //     todo.delete(); // Delete from Hive
+        //   },
+        // ),
       ),
     );
   }
@@ -168,11 +307,16 @@ class _HomePageState extends State<HomePage> {
           note.title,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         subtitle: Text(
           // Have max characters trailing
-          note.content.length >= 15? note.content.substring(0, 15) + '...' : note.content,
+          note.content.length >= 15
+              ? note.content.substring(0, 15) + '...'
+              : note.content,
           //note.content,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
@@ -187,16 +331,19 @@ class _HomePageState extends State<HomePage> {
                 color: note.isPinned ? const Color(0xFFF6D14C) : Colors.grey,
               ),
               onPressed: () {
-                final updatedDomainNote = note.copyWith(isPinned: !note.isPinned);
+                final updatedDomainNote = note.copyWith(
+                  isPinned: !note.isPinned,
+                );
                 final hiveNote = updatedDomainNote.toEntity();
                 Hive.box<hive.Note>('notes').put(note.key, hiveNote);
               },
             ),
             IconButton(
-                icon: const Icon(Icons.delete, color: Colors.grey),
-                onPressed: () {
-                  Hive.box<hive.Note>('notes').delete(note.key);
-                }),
+              icon: const Icon(Icons.delete, color: Colors.grey),
+              onPressed: () {
+                Hive.box<hive.Note>('notes').delete(note.key);
+              },
+            ),
           ],
         ),
       ),
@@ -239,7 +386,12 @@ class _HomePageState extends State<HomePage> {
           children: [
             IconButton(
               icon: const Icon(Icons.check_box_outlined, color: Colors.white),
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => TodolistPage()),
+                );
+              },
             ),
 
             const Spacer(),

@@ -18,17 +18,20 @@ class TodolistAdapter extends TypeAdapter<Todolist> {
     };
     return Todolist(
       todoList: fields[0] as String,
-      isDone: fields[1] as bool,
+      description: fields[1] as String,
+      isDone: fields[2] as bool,
     );
   }
 
   @override
   void write(BinaryWriter writer, Todolist obj) {
     writer
-      ..writeByte(2)
+      ..writeByte(3)
       ..writeByte(0)
       ..write(obj.todoList)
       ..writeByte(1)
+      ..write(obj.description)
+      ..writeByte(2)
       ..write(obj.isDone);
   }
 

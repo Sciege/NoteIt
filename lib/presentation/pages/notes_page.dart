@@ -36,13 +36,13 @@ class _NotesPageState extends State<NotesPage> {
   }
 
   void _saveNote() {
-    final titleText = _titleController.text;
+    final titleText = _titleController.text.trim();
     final contentText = _contentController.text;
 
-    if (titleText.isEmpty && contentText.isEmpty) {
-      Navigator.pop(context);
-      return;
-    }
+    // if (titleText.isEmpty && contentText.isEmpty) {
+    //   Navigator.pop(context);
+    //   return;
+    // }
 
     final box = Hive.box<hive.Note>('notes');
 

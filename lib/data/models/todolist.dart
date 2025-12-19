@@ -8,7 +8,10 @@ class Todolist extends HiveObject {
   String todoList;
 
   @HiveField(1)
+  String description;
+
+  @HiveField(2)
   bool isDone;
 
-  Todolist({required this.todoList, required this.isDone});
+  Todolist({required this.todoList, required this.description, required this.isDone});
 }
