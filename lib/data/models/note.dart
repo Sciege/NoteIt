@@ -1,4 +1,3 @@
-
 import 'package:hive/hive.dart';
 
 part 'note.g.dart'; // used dart run build_runner build --delete-conflicting-outputs
@@ -14,9 +13,12 @@ class Note extends HiveObject {
   @HiveField(2)
   bool isPinned;
 
-  Note({
+  Note({required this.title, required this.content, this.isPinned = false});
+
+  Note.create({
     required this.title,
     required this.content,
     this.isPinned = false,
   });
+
 }

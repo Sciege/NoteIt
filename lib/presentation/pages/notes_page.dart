@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
-import 'package:notes_it/data/models/note.dart';
+import 'package:notes_it/data/mapper/note_mapper.dart';
+import 'package:notes_it/data/models/note.dart' as hive;
+import 'package:notes_it/domain/models/note.dart' as domain;
 
 class NotesPage extends StatefulWidget {
-  final Note? note;
+  final domain.Note? note;
 
   const NotesPage({super.key, this.note});
 
@@ -21,48 +23,46 @@ class _NotesPageState extends State<NotesPage> {
   void initState() {
     super.initState();
     if (widget.note != null) {
-      // Set initial values for editing
-      _contentController.text = widget.note!.content;
       _titleController.text = widget.note!.title;
+      _contentController.text = widget.note!.content;
     }
-    _contentController.addListener(_updateWordCount);
   }
 
   @override
   void dispose() {
-    _contentController.removeListener(_updateWordCount);
     _titleController.dispose();
     _contentController.dispose();
-    _scrollController.dispose();
     super.dispose();
-  }
-
-  void _updateWordCount() {
-    setState(() {
-      _wordCount = _contentController.text.trim().isEmpty
-          ? 0
-          : _contentController.text.trim().split(RegExp(r'\s+')).length;
-    });
   }
 
   void _saveNote() {
     final titleText = _titleController.text;
     final contentText = _contentController.text;
-    if (contentText.isNotEmpty) {
-      final box = Hive.box<Note>('notes');
 
-      if (widget.note != null) {
-        // Update existing note
-        widget.note!.title = titleText;
-        widget.note!.content = contentText;
-        widget.note!.save();
-      } else {
-        // Create new note
-        final newNote = Note(title: titleText, content: contentText);
-        box.add(newNote);
-      }
+    if (titleText.isEmpty && contentText.isEmpty) {
       Navigator.pop(context);
+      return;
     }
+
+    final box = Hive.box<hive.Note>('notes');
+
+    if (widget.note != null) {
+      final updatedDomainNote = widget.note!.copyWith(
+        title: titleText,
+        content: contentText,
+      );
+      final hiveNote = updatedDomainNote.toEntity();
+      box.put(widget.note!.key, hiveNote);
+    } else {
+      final newDomainNote = domain.Note(
+        title: titleText.isNotEmpty ? titleText : "Untitled Note",
+        content: contentText,
+      );
+      final hiveNote = newDomainNote.toEntity();
+      box.add(hiveNote);
+    }
+
+    Navigator.pop(context);
   }
 
   @override
@@ -71,7 +71,7 @@ class _NotesPageState extends State<NotesPage> {
       backgroundColor: const Color(0xFF181818),
       appBar: AppBar(
         leading: IconButton(
-          onPressed: () => Navigator.pop(context),
+          onPressed: _saveNote,
           icon: const Icon(Icons.arrow_back),
         ),
         actions: [
@@ -136,11 +136,9 @@ class _NotesPageState extends State<NotesPage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        hoverColor: const Color(0xFFFFBD00),
         onPressed: _saveNote,
         child: const Icon(Icons.save_alt),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.miniEndFloat,
     );
   }
 }
