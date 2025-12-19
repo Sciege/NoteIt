@@ -172,7 +172,8 @@ class _HomePageState extends State<HomePage> {
         ),
         subtitle: Text(
           // Have max characters trailing
-          note.content.length > 10 ? note.content.substring(0, 20) + '...' : note.content,
+          note.content.length >= 15? note.content.substring(0, 15) + '...' : note.content,
+          //note.content,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: const TextStyle(color: Colors.grey),
