@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:notes_it/presentation/pages/notes_page.dart';
 import 'package:notes_it/presentation/pages/todolist_page.dart';
+import 'package:notes_it/presentation/pages/todos_page.dart';
 
 //notes
 import '../../data/mapper/note_mapper.dart';
@@ -9,7 +10,9 @@ import '../../data/models/note.dart' as hive;
 import '../../domain/models/note.dart' as domain;
 
 //todolist
+import '../../data/mapper/todolist_mapper.dart';
 import '../../data/models/todolist.dart' as hiveTodo;
+import '../../domain/models/todolist.dart' as domainTodo;
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -113,8 +116,6 @@ class _HomePageState extends State<HomePage> {
               padding: const EdgeInsets.symmetric(horizontal: 24.0),
               child: Row(
                 children: [
-                  //TODO
-
                   Container(
                     height: screenHeight * 0.3,
                     width: screenWidth * 0.41,
@@ -129,13 +130,25 @@ class _HomePageState extends State<HomePage> {
                       ).listenable(),
                       builder: (context, box, _) {
                         // Filter not done
-                        final activeTodos = box.values
+                        //TODO
+                        final domainTodos = box.keys.map((key) {
+                          final hiveTodo_ = box.get(key)!;
+                          return domainTodo.Todolist(
+                            key: key,
+                            todolist: hiveTodo_.todoList,
+                            description: hiveTodo_.description,
+                            isDone: hiveTodo_.isDone,
+                          );
+                        }).toList();
+
+                        final activeTodos = domainTodos
                             .where((todo) => !todo.isDone)
                             .toList();
-                        Widget contentWidget;
 
+                          Widget contentWidget;
                         if (activeTodos.isEmpty) {
-                          contentWidget = const Center(
+                           contentWidget =
+                          const Center(
                             child: Text(
                               'No active todos',
                               style: TextStyle(
@@ -149,7 +162,8 @@ class _HomePageState extends State<HomePage> {
                           contentWidget = ListView.builder(
                             itemCount: activeTodos.length,
                             itemBuilder: (context, index) {
-                              return _buildtoDoCard(activeTodos[index]);
+                              final todo = activeTodos[index];
+                              return _buildtoDoCard(todo);
                             },
                           );
                         }
@@ -158,7 +172,14 @@ class _HomePageState extends State<HomePage> {
                           children: [
                             // THE PERMANENT TITLE
                             TextButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => TodosPage(),
+                                  ),
+                                );
+                              },
                               child: Text(
                                 'Todos',
                                 style: TextStyle(
@@ -189,7 +210,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildtoDoCard(hiveTodo.Todolist todo) {
+  Widget _buildtoDoCard(domainTodo.Todolist todo) {
     return Card(
       color: const Color(0xFF202020),
       margin: const EdgeInsets.symmetric(horizontal: 1, vertical: 5),
@@ -197,7 +218,6 @@ class _HomePageState extends State<HomePage> {
         horizontalTitleGap: 0,
         contentPadding: EdgeInsets.zero,
         onTap: () {
-
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => TodolistPage(todos: todo)),
@@ -208,14 +228,22 @@ class _HomePageState extends State<HomePage> {
           activeColor: const Color(0xFFF6D14C),
           onChanged: (bool? value) {
             // Toggle completion
-            todo.isDone = value ?? false;
-            todo.save(); // Save to Hive
+            // todo.isDone = value ?? false;
+            // todo.save(); // Save to Hive
+            final updatedTodo = todo.copyWith(isDone: value ?? false);
+
+            // Convert to Hive entity
+            final hiveTodo_ = updatedTodo.toEntity();
+
+            // Save to Hive
+            final box = Hive.box<hiveTodo.Todolist>('todos');
+            box.put(todo.key, hiveTodo_);
           },
         ),
         title: Text(
-          todo.todoList.length >= 8
-              ? todo.todoList.substring(0, 8) + '...'
-              : todo.todoList,
+          todo.todolist.length >= 8
+              ? todo.todolist.substring(0, 8) + '...'
+              : todo.todolist,
           style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,

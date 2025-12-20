@@ -1,6 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-part 'note.freezed.dart';
+part 'note.freezed.dart'; // dart run build_runner build --delete-conflicting-outputs
 
 @freezed
 abstract class Note with _$Note {

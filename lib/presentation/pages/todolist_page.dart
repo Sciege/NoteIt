@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
+import 'package:notes_it/data/mapper/todolist_mapper.dart';
 
-import '../../data/models/todolist.dart';
+import '../../data/models/todolist.dart' as hive;
+import '../../domain/models/todolist.dart' as domain;
 
 class TodolistPage extends StatefulWidget {
-  final Todolist? todos;
+  final domain.Todolist? todos;
 
   const TodolistPage({super.key, this.todos});
 
@@ -20,7 +22,7 @@ class _TodolistPageState extends State<TodolistPage> {
   void initState() {
     super.initState();
     if (widget.todos != null) {
-      _titleTodoController.text = widget.todos!.todoList;
+      _titleTodoController.text = widget.todos!.todolist;
       _descriptionController.text = widget.todos!.description;
     }
   }
@@ -54,18 +56,26 @@ class _TodolistPageState extends State<TodolistPage> {
         return;
       }
     }
-    final box = Hive.box<Todolist>('todos');
+    final box = Hive.box<hive.Todolist>('todos');
     //specific todos
     if (widget.todos != null) {
-      widget.todos!.todoList = titleTodo;
-      widget.todos!.description = description;
-      widget.todos!.save();
-    } else {
-      final newTodo = Todolist(
-        todoList: titleTodo,
+      // widget.todos!.todoList = titleTodo;
+      // widget.todos!.description = description;
+      // widget.todos!.save();
+      final updatedDomainTodo = widget.todos!.copyWith(
+        todolist: titleTodo,
         description: description,
-        isDone: false,
       );
+
+      final hiveTodo = updatedDomainTodo.toEntity();
+      box.put(widget.todos!.key, hiveTodo);
+    } else {
+      final newDomainTodolist = domain.Todolist(
+        todolist: titleTodo,
+        description: description,
+      );
+
+      final newTodo = newDomainTodolist.toEntity();
 
       // Add to the box
       box.add(newTodo);

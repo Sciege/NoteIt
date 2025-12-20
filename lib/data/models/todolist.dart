@@ -13,5 +13,9 @@ class Todolist extends HiveObject {
   @HiveField(2)
   bool isDone;
 
-  Todolist({required this.todoList, required this.description, required this.isDone});
+  Todolist(
+      {required this.todoList, required this.description, required this.isDone});
+
+  Todolist.create(
+      {required this.todoList, required this.description, required this.isDone});
 }
