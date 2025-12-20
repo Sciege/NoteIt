@@ -1,21 +1,9 @@
-import '../../domain/models/todolist.dart' as domain;
-import '../../data/models/todolist.dart' as data;
+import 'package:notes_it/data/models/todolist.dart' as hive;
+import 'package:notes_it/domain/models/todolist.dart' as domain;
 
-// Hive to Freezed (Reading from DB)
-extension NoteHiveMapper on data.Todolist {
-  domain.Todolist toDomain() {
-    return domain.Todolist(
-      todolist: todoList,
-      description: description,
-      isDone: isDone,
-    );
-  }
-}
-
-// Freezed to Hive (Saving to DB local)
-extension NoteDomainMapper on domain.Todolist {
-  data.Todolist toEntity() {
-    return data.Todolist.create(
+extension TodolistMapper on domain.Todolist {
+  hive.Todolist toEntity() {
+    return hive.Todolist(
       todoList: todolist,
       description: description,
       isDone: isDone,
