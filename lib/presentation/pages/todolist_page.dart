@@ -32,7 +32,6 @@ class _TodolistPageState extends State<TodolistPage> {
     super.dispose();
   }
 
-
   void saveTodo() {
     final titleTodo = _titleTodoController.text.trim();
     final description = _descriptionController.text;
@@ -114,7 +113,7 @@ class _TodolistPageState extends State<TodolistPage> {
                 ),
                 child: TextField(
                   controller: _titleTodoController,
-                  autofocus: true,
+                  autofocus: false,
                   maxLength: 50,
                   style: const TextStyle(
                     color: Colors.white,
@@ -171,8 +170,9 @@ class _TodolistPageState extends State<TodolistPage> {
                       borderRadius: BorderRadius.circular(30),
                     ),
                   ),
-                  child: const Text(
-                    'Add Todo',
+                  child: Text(
+                    // is there exisiting data? yes edit else add
+                    widget.todos != null ? "Edit Todo" : "Add Todo",
                     style: TextStyle(
                       color: Colors.black,
                       fontSize: 18,
