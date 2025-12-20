@@ -262,6 +262,16 @@ class _HomePageState extends State<HomePage> {
       ),
       child: Center(
         child: GestureDetector(
+          onTapDown: (_) {
+            setState(() {
+              lockColor = const Color(0xFFF6D14C); // Yellow
+            });
+          },
+          onTapCancel: () {
+            setState(() {
+              lockColor = Colors.grey;
+            });
+          },
           child: IconButton(
             color: lockColor,
             onPressed: () {},
