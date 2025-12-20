@@ -114,20 +114,7 @@ class _HomePageState extends State<HomePage> {
               child: Row(
                 children: [
                   //TODO
-                  // ValueListenableBuilder<Box<hiveTodo.Todolist>>(
-                  //   valueListenable: Hive
-                  //       .box<hiveTodo.Todolist>('todolist')
-                  //       .listenable(),
-                  //   builder: (context, box, _){
-                  //     if(box.isEmpty){
-                  //       return Center(
-                  //         child: Text('No todos')
-                  //       );
-                  //     }
-                  //     return
-                  //   },
-                  //   child:,
-                  // ),
+
                   Container(
                     height: screenHeight * 0.3,
                     width: screenWidth * 0.41,
@@ -170,16 +157,18 @@ class _HomePageState extends State<HomePage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             // THE PERMANENT TITLE
-                            const Text(
-                              'Todos',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
+                            TextButton(
+                              onPressed: () {},
+                              child: Text(
+                                'Todos',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
                             const SizedBox(height: 5),
-
                             Expanded(child: contentWidget),
                           ],
                         );
@@ -200,24 +189,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  //TODO
-  Widget _buildTodoList(List<hiveTodo.Todolist> todos) {
-    return Container(
-      padding: const EdgeInsets.all(0),
-      decoration: BoxDecoration(
-        color: const Color(0xFF242424),
-        borderRadius: BorderRadius.circular(15),
-      ),
-      child: ListView.builder(
-        itemCount: todos.length,
-        itemBuilder: (context, index) {
-          final todo = todos[index];
-          return _buildtoDoCard(todo);
-        },
-      ),
-    );
-  }
-
   Widget _buildtoDoCard(hiveTodo.Todolist todo) {
     return Card(
       color: const Color(0xFF202020),
@@ -226,7 +197,7 @@ class _HomePageState extends State<HomePage> {
         horizontalTitleGap: 0,
         contentPadding: EdgeInsets.zero,
         onTap: () {
-          // TODO: Navigate to edit todo page
+
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => TodolistPage(todos: todo)),
@@ -251,20 +222,6 @@ class _HomePageState extends State<HomePage> {
             decoration: todo.isDone ? TextDecoration.lineThrough : null,
           ),
         ),
-        // subtitle: todo.description.isNotEmpty
-        //     ? Text(
-        //         todo.description,
-        //         style: const TextStyle(color: Colors.grey),
-        //         maxLines: 1,
-        //         overflow: TextOverflow.ellipsis,
-        //       )
-        //     : null,
-        // trailing: IconButton(
-        //   icon: const Icon(Icons.delete, color: Colors.grey),
-        //   onPressed: () {
-        //     todo.delete(); // Delete from Hive
-        //   },
-        // ),
       ),
     );
   }
