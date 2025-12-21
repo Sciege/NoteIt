@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:notes_it/presentation/pages/notes_page.dart';
+import 'package:notes_it/presentation/pages/private_notes.dart';
 import 'package:notes_it/presentation/pages/todolist_page.dart';
 import 'package:notes_it/presentation/pages/todos_page.dart';
 
@@ -14,6 +15,9 @@ import '../../data/mapper/todolist_mapper.dart';
 import '../../data/models/todolist.dart' as hiveTodo;
 import '../../domain/models/todolist.dart' as domainTodo;
 
+// auth
+import '../../core/services/local_auth_service.dart';
+
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -25,6 +29,18 @@ class _HomePageState extends State<HomePage> {
   Color lockColor = Colors.grey;
   int _selectedTab = 0; // Changes when clicked
   final ScrollController _scrollController = ScrollController();
+
+  final _authServices = LocalAuthService();
+
+  Future _handleLock() async {
+    bool authenticated = await _authServices.authenticateWithBiometrics();
+    if (authenticated) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => PrivateNotes()),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -274,7 +290,7 @@ class _HomePageState extends State<HomePage> {
           },
           child: IconButton(
             color: lockColor,
-            onPressed: () {},
+            onPressed: _handleLock,
             iconSize: 30,
             icon: Icon(Icons.lock_outline),
           ),
