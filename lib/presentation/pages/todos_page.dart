@@ -3,6 +3,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:notes_it/data/mapper/todolist_mapper.dart';
 import '../../data/models/todolist.dart' as hiveTodo;
 import '../../domain/models/todolist.dart' as domainTodo;
+import 'package:go_router/go_router.dart';
 
 class TodosPage extends StatefulWidget {
   const TodosPage({super.key});
@@ -18,7 +19,7 @@ class _TodosPageState extends State<TodosPage> {
       appBar: AppBar(
         leading: IconButton(
           onPressed: () {
-            Navigator.pop(context);
+            context.go('/');
           },
           icon: const Icon(Icons.arrow_back),
         ),
@@ -55,7 +56,9 @@ class _TodosPageState extends State<TodosPage> {
                     );
                   }).toList();
 
-                  final todos = domainTodos.where((todo) => !todo.isDone || todo.isDone).toList();
+                  final todos = domainTodos
+                      .where((todo) => !todo.isDone || todo.isDone)
+                      .toList();
 
                   if (todos.isEmpty) {
                     return const Center(
@@ -110,18 +113,23 @@ class _TodosPageState extends State<TodosPage> {
           mainAxisSize: MainAxisSize.min,
           children: [
             IconButton(
-              icon: Icon(todo.isDone ? Icons.check_box : Icons.check_box_outline_blank,
-                  //Icons.check_box_outline_blank, color: Colors.grey
+              icon: Icon(
+                todo.isDone ? Icons.check_box : Icons.check_box_outline_blank,
+                //Icons.check_box_outline_blank, color: Colors.grey
               ),
               onPressed: () {
-                if(todo.isDone == false){
+                if (todo.isDone == false) {
                   final updatedTodo = todo.copyWith(isDone: true);
                   final hiveTodoItem = updatedTodo.toEntity();
-                  Hive.box<hiveTodo.Todolist>('todos').put(todo.key, hiveTodoItem);
-                }else{
+                  Hive.box<hiveTodo.Todolist>(
+                    'todos',
+                  ).put(todo.key, hiveTodoItem);
+                } else {
                   final updatedTodo = todo.copyWith(isDone: false);
                   final hiveTodoItem = updatedTodo.toEntity();
-                  Hive.box<hiveTodo.Todolist>('todos').put(todo.key, hiveTodoItem);
+                  Hive.box<hiveTodo.Todolist>(
+                    'todos',
+                  ).put(todo.key, hiveTodoItem);
                 }
               },
             ),

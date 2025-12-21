@@ -8,11 +8,11 @@ import 'package:notes_it/presentation/pages/todolist_page.dart';
 import '../../data/models/priv_notes.dart' as hive;
 
 import '../../domain/models/priv_notes.dart' as domain;
-//import 'notes_page.dart';
-
-//import '../../data/models/note.dart' as hive;
+import 'package:go_router/go_router.dart';
 
 class PrivateNotesList extends StatefulWidget {
+  const PrivateNotesList({super.key});
+
   @override
   State<StatefulWidget> createState() {
     // TODO: implement createState
@@ -22,12 +22,20 @@ class PrivateNotesList extends StatefulWidget {
 
 class _PrivateNotesListState extends State<PrivateNotesList> {
   ScrollController _scrollController = ScrollController();
-  int _selectedTab = 0; // Changes when clicked
+
+  // int _selectedTab = 0; // Changes when clicked
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        leading: IconButton(
+          onPressed: () {
+           context.go('/');
+          },
+          icon: const Icon(Icons.arrow_back),
+        ),
+      ),
       body: SafeArea(
         child: SafeArea(
           child: Column(
@@ -102,10 +110,8 @@ class _PrivateNotesListState extends State<PrivateNotesList> {
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.edit_outlined),
         onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const PrivNotes()),
-          );
+          //PrivNotes
+          context.go('/private_notes');
         },
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
@@ -129,10 +135,8 @@ class _PrivateNotesListState extends State<PrivateNotesList> {
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       child: ListTile(
         onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => PrivNotes()),
-          );
+          //PrivateNotes
+          context.go('/private_notes');
         },
         title: Text(
           note.title,
@@ -217,10 +221,8 @@ class _PrivateNotesListState extends State<PrivateNotesList> {
                 ),
 
                 onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const PrivNotes()),
-                  );
+                  //PrivateNotes
+                  context.go('/private_notes');
                 },
               ),
             ),

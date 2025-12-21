@@ -4,6 +4,7 @@ import 'package:notes_it/data/mapper/todolist_mapper.dart';
 
 import '../../data/models/todolist.dart' as hive;
 import '../../domain/models/todolist.dart' as domain;
+import 'package:go_router/go_router.dart';
 
 class TodolistPage extends StatefulWidget {
   final domain.Todolist? todos;
@@ -52,7 +53,7 @@ class _TodolistPageState extends State<TodolistPage> {
         );
         return;
       } else {
-        Navigator.pop(context);
+        context.go('/');
         return;
       }
     }

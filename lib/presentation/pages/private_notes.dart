@@ -4,19 +4,20 @@ import 'package:hive/hive.dart';
 import '../../data/mapper/priv_notes.dart';
 import '../../data/models/priv_notes.dart' as hive;
 import '../../domain/models/priv_notes.dart' as domain;
+import 'package:go_router/go_router.dart';
 
-class PrivNotes extends StatefulWidget {
+class PrivateNotes extends StatefulWidget {
   final domain.PrivNotes? privNotes;
 
-  const PrivNotes({super.key, this.privNotes});
+  const PrivateNotes({super.key, this.privNotes});
 
   @override
   State<StatefulWidget> createState() {
-    return _PrivNotesState();
+    return _PrivateNotesState();
   }
 }
 
-class _PrivNotesState extends State<PrivNotes> {
+class _PrivateNotesState extends State<PrivateNotes> {
   final ScrollController _scrollController = ScrollController();
   final _titleNotesController = TextEditingController();
   final _descriptionController = TextEditingController();
@@ -57,7 +58,7 @@ class _PrivNotesState extends State<PrivNotes> {
         );
         return;
       } else {
-        Navigator.pop(context);
+       context.go('/');
         return;
       }
     }

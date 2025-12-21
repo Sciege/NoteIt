@@ -18,6 +18,7 @@ import '../../domain/models/todolist.dart' as domainTodo;
 
 // auth
 import '../../core/services/local_auth_service.dart';
+import 'package:go_router/go_router.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -36,10 +37,7 @@ class _HomePageState extends State<HomePage> {
   Future _handleLock() async {
     bool authenticated = await _authServices.authenticateWithBiometrics();
     if (authenticated) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => PrivateNotesList()),
-      );
+      context.go('/private_notes_list');
     }
   }
 
@@ -50,14 +48,7 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       backgroundColor: const Color(0xFF181818),
-      appBar: AppBar(
-        actions: const [
-          Padding(
-            padding: EdgeInsets.only(right: 15),
-            child: CircleAvatar(radius: 20),
-          ),
-        ],
-      ),
+      appBar: AppBar(),
       body: SafeArea(
         child: Column(
           children: [
@@ -157,10 +148,8 @@ class _HomePageState extends State<HomePage> {
         horizontalTitleGap: 0,
         contentPadding: EdgeInsets.zero,
         onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => TodolistPage(todos: todo)),
-          );
+          //TodolistPage
+          context.go('/todolist_page');
         },
         leading: Checkbox(
           value: todo.isDone,
@@ -245,10 +234,8 @@ class _HomePageState extends State<HomePage> {
               // THE PERMANENT TITLE
               TextButton(
                 onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => TodosPage()),
-                  );
+                  //TodosPage
+                  context.go('/todos_page');
                 },
                 child: Text(
                   'Todos',
@@ -317,10 +304,8 @@ class _HomePageState extends State<HomePage> {
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       child: ListTile(
         onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => NotesPage(note: note)),
-          );
+          //NotesPage
+          context.go('/notes_page');
         },
         title: Text(
           note.title,
@@ -406,10 +391,8 @@ class _HomePageState extends State<HomePage> {
             IconButton(
               icon: const Icon(Icons.check_box_outlined, color: Colors.white),
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => TodolistPage()),
-                );
+                //TodolistPage
+                context.go('/todolist_page');
               },
             ),
 
@@ -428,10 +411,8 @@ class _HomePageState extends State<HomePage> {
                 ),
 
                 onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const NotesPage()),
-                  );
+                  //NotesPage
+                  context.go('/notes_page');
                 },
               ),
             ),

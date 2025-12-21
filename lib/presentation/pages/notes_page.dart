@@ -3,6 +3,7 @@ import 'package:hive/hive.dart';
 import 'package:notes_it/data/mapper/note_mapper.dart';
 import 'package:notes_it/data/models/note.dart' as hive;
 import 'package:notes_it/domain/models/note.dart' as domain;
+import 'package:go_router/go_router.dart';
 
 class NotesPage extends StatefulWidget {
   final domain.Note? note;
@@ -62,7 +63,7 @@ class _NotesPageState extends State<NotesPage> {
       box.add(hiveNote);
     }
 
-    Navigator.pop(context);
+    context.go('/');
   }
 
   @override
