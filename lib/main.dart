@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:notes_it/data/models/priv_notes.dart';
 import 'package:notes_it/data/models/todolist.dart';
 import 'package:notes_it/presentation/app_theme.dart';
 import 'package:notes_it/presentation/pages/home_page.dart';
@@ -11,11 +12,12 @@ void main() async {
   await Hive.initFlutter();
   Hive.registerAdapter(NoteAdapter());
   Hive.registerAdapter(TodolistAdapter());
-//  await Hive.deleteBoxFromDisk('notes'); //to be deleted in prod
-//  await Hive.deleteBoxFromDisk('todos'); //to be deleted in prod
+  Hive.registerAdapter(PrivNotesAdapter());
+  //  await Hive.deleteBoxFromDisk('notes'); //to be deleted in prod
+  //  await Hive.deleteBoxFromDisk('todos'); //to be deleted in prod
   await Hive.openBox<Todolist>('todos');
   await Hive.openBox<Note>('notes');
-
+  await Hive.openBox<PrivNotes>('priv_notes');
   runApp(const MyApp());
 }
 

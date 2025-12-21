@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:notes_it/presentation/pages/notes_page.dart';
 import 'package:notes_it/presentation/pages/private_notes.dart';
+import 'package:notes_it/presentation/pages/private_notes_list.dart';
 import 'package:notes_it/presentation/pages/todolist_page.dart';
 import 'package:notes_it/presentation/pages/todos_page.dart';
 
@@ -37,7 +38,7 @@ class _HomePageState extends State<HomePage> {
     if (authenticated) {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => PrivateNotes()),
+        MaterialPageRoute(builder: (context) => PrivateNotesList()),
       );
     }
   }
@@ -439,11 +440,7 @@ class _HomePageState extends State<HomePage> {
             IconButton(
               icon: const Icon(Icons.lock_outline, color: Colors.white),
               onPressed: () {
-                Navigator.push(
-                  context,
-                  //todo set up
-                  MaterialPageRoute(builder: (context) => TodolistPage()),
-                );
+                _handleLock();
               },
             ),
           ],

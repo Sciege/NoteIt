@@ -7,7 +7,7 @@ class LocalAuthService {
     try {
       final isAuthenticated = await localAuthentication.authenticate(
         localizedReason: "Unlock to access private notes",
-        biometricOnly: true,
+        biometricOnly: false,
        // useErrorDialogs: true,
        // stickyAuth: true,
       );
