@@ -35,6 +35,10 @@ class _TodolistPageState extends State<TodolistPage> {
     super.dispose();
   }
 
+  void back() {
+    return context.go('/todos_page');
+  }
+
   void saveTodo() {
     final titleTodo = _titleTodoController.text.trim();
     final description = _descriptionController.text;
@@ -82,7 +86,7 @@ class _TodolistPageState extends State<TodolistPage> {
       box.add(newTodo);
     }
 
-    Navigator.pop(context);
+    context.go('/');
   }
 
   @override
@@ -92,7 +96,7 @@ class _TodolistPageState extends State<TodolistPage> {
       appBar: AppBar(
         backgroundColor: const Color(0xFF181818),
         leading: IconButton(
-          onPressed: saveTodo,
+          onPressed: back,
           icon: const Icon(Icons.arrow_back),
         ),
       ),

@@ -27,6 +27,16 @@ class _NotesPageState extends State<NotesPage> {
       _titleController.text = widget.note!.title;
       _contentController.text = widget.note!.content;
     }
+
+    // Add this listener
+    _contentController.addListener(() {
+      setState(() {
+        _wordCount = _contentController.text
+            .split(RegExp(r'\s+'))
+            .where((word) => word.isNotEmpty)
+            .length;
+      });
+    });
   }
 
   @override
@@ -34,6 +44,10 @@ class _NotesPageState extends State<NotesPage> {
     _titleController.dispose();
     _contentController.dispose();
     super.dispose();
+  }
+
+  void back() {
+    return context.go('/');
   }
 
   void _saveNote() {
@@ -72,7 +86,7 @@ class _NotesPageState extends State<NotesPage> {
       backgroundColor: const Color(0xFF181818),
       appBar: AppBar(
         leading: IconButton(
-          onPressed: _saveNote,
+          onPressed: back,
           icon: const Icon(Icons.arrow_back),
         ),
         actions: [
@@ -118,7 +132,7 @@ class _NotesPageState extends State<NotesPage> {
                   child: TextField(
                     controller: _contentController,
                     autofocus: false,
-                   // keyboardType: TextInputType.multiline,
+                    // keyboardType: TextInputType.multiline,
                     maxLines: null,
                     style: const TextStyle(color: Colors.white, fontSize: 18),
                     decoration: InputDecoration(

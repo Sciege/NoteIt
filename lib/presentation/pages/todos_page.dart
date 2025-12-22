@@ -94,6 +94,10 @@ class _TodosPageState extends State<TodosPage> {
       color: const Color(0xFF202020),
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       child: ListTile(
+        onTap: () {
+          //NotesPage
+          context.go('/todolist_page', extra: todo);
+        },
         title: Text(
           todo.todolist,
           maxLines: 1,

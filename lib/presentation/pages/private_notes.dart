@@ -7,9 +7,9 @@ import '../../domain/models/priv_notes.dart' as domain;
 import 'package:go_router/go_router.dart';
 
 class PrivateNotes extends StatefulWidget {
-  final domain.PrivNotes? privNotes;
+  final domain.PrivNotes? privateNotes;
 
-  const PrivateNotes({super.key, this.privNotes});
+  const PrivateNotes({super.key, this.privateNotes});
 
   @override
   State<StatefulWidget> createState() {
@@ -25,21 +25,29 @@ class _PrivateNotesState extends State<PrivateNotes> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    if (widget.privNotes != null) {
-      _titleNotesController.text = widget.privNotes!.title;
-      _descriptionController.text = widget.privNotes!.content;
+    if (widget.privateNotes != null) {
+      _titleNotesController.text = widget.privateNotes!.title;
+      _descriptionController.text = widget.privateNotes!.content;
     }
+    _descriptionController.addListener(() {
+      setState(() {
+        _wordCount = _descriptionController.text.split(RegExp(r'\s+')).where((word) => word.isNotEmpty).length;
+      });
+    });
   }
 
   @override
   void dispose() {
     _titleNotesController.dispose();
     _descriptionController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
+  void back(){
+    return context.go('/private_notes_list');
+  }
   void savePrivNotes() {
     final privTitleText = _titleNotesController.text.trim();
     final privContentText = _descriptionController.text;
@@ -58,26 +66,34 @@ class _PrivateNotesState extends State<PrivateNotes> {
         );
         return;
       } else {
-       context.go('/');
+       context.go('/private_notes_list');
         return;
       }
     }
     final box = Hive.box<hive.PrivNotes>('priv_notes');
     //specific todos
-    if (widget.privNotes != null) {
+    if (widget.privateNotes != null) {
       // widget.todos!.todoList = privTitleText;
       // widget.todos!.privContentText = privContentText;
       // widget.todos!.save();
-      final updatedDomainPrivNotes = widget.privNotes!.copyWith(
+      final updatedDomainPrivNotes = widget.privateNotes!.copyWith(
         title: privTitleText,
         content: privContentText,
       );
 
       final hiveTodo = updatedDomainPrivNotes.toEntity();
-      box.put(widget.privNotes!.key, hiveTodo);
+      box.put(widget.privateNotes!.key, hiveTodo);
     } else {
+      //
+      // final newDomainNote = domain.Note(
+      //   title: titleText.isNotEmpty ? titleText : "Untitled Note",
+      //   content: contentText,
+      // );
+      // final hiveNote = newDomainNote.toEntity();
+      // box.add(hiveNote);
+
       final newDomainTodolist = domain.PrivNotes(
-        title: privTitleText,
+        title: privTitleText.isNotEmpty ? privTitleText : "Untitled Note",
         content: privContentText,
       );
 
@@ -87,7 +103,7 @@ class _PrivateNotesState extends State<PrivateNotes> {
       box.add(newTodo);
     }
 
-    Navigator.pop(context);
+    context.go('/private_notes_list');
   }
 
   @override
@@ -97,7 +113,7 @@ class _PrivateNotesState extends State<PrivateNotes> {
       appBar: AppBar(
         backgroundColor: const Color(0xFF181818),
         leading: IconButton(
-          onPressed: savePrivNotes,
+          onPressed: back,
           icon: const Icon(Icons.arrow_back),
         ),
         actions: [
@@ -114,7 +130,7 @@ class _PrivateNotesState extends State<PrivateNotes> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                widget.privNotes != null
+                widget.privateNotes != null
                     ? "Edit your Private Note"
                     : "What's your secret in mind?",
                 style: const TextStyle(

@@ -149,7 +149,7 @@ class _HomePageState extends State<HomePage> {
         contentPadding: EdgeInsets.zero,
         onTap: () {
           //TodolistPage
-          context.go('/todolist_page');
+          context.go('/todolist_page', extra: todo);
         },
         leading: Checkbox(
           value: todo.isDone,
@@ -305,7 +305,7 @@ class _HomePageState extends State<HomePage> {
       child: ListTile(
         onTap: () {
           //NotesPage
-          context.go('/notes_page');
+          context.go('/notes_page', extra: note);
         },
         title: Text(
           note.title,

@@ -14,6 +14,10 @@ import 'data/models/note.dart';
 
 import 'package:go_router/go_router.dart';
 
+import 'domain/models/note.dart' as domain;
+import 'domain/models/priv_notes.dart' as domainPrivNotes;
+import 'domain/models/todolist.dart' as domainTodolist;
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
@@ -22,6 +26,8 @@ void main() async {
   Hive.registerAdapter(PrivNotesAdapter());
   //  await Hive.deleteBoxFromDisk('notes'); //to be deleted in prod
   //  await Hive.deleteBoxFromDisk('todos'); //to be deleted in prod
+  //  await Hive.deleteBoxFromDisk('priv_notes'); //to be deleted in prod
+
   await Hive.openBox<Todolist>('todos');
   await Hive.openBox<Note>('notes');
   await Hive.openBox<PrivNotes>('priv_notes');
@@ -48,7 +54,8 @@ class _MyAppState extends State<MyApp> {
       GoRoute(
         path: '/todolist_page',
         builder: (BuildContext context, GoRouterState state) {
-          return const TodolistPage();
+          final note = state.extra as domainTodolist.Todolist?;
+          return TodolistPage(todos: note);
         },
       ),
       GoRoute(
@@ -60,19 +67,22 @@ class _MyAppState extends State<MyApp> {
       GoRoute(
         path: '/notes_page',
         builder: (BuildContext context, GoRouterState state) {
-          return const NotesPage();
+          final note = state.extra as domain.Note?;
+          return NotesPage(note: note);
         },
       ),
       GoRoute(
         path: '/private_notes_list',
         builder: (BuildContext context, GoRouterState state) {
-          return const PrivateNotesList();
+          // final note = state.extra as domainPrivNotes.PrivNotes;
+          return PrivateNotesList();
         },
       ),
       GoRoute(
         path: '/private_notes',
         builder: (BuildContext context, GoRouterState state) {
-          return const PrivateNotes();
+          final note = state.extra as domainPrivNotes.PrivNotes?;
+          return PrivateNotes(privateNotes: note);
         },
       ),
     ],

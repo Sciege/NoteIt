@@ -11,6 +11,7 @@ import '../../domain/models/priv_notes.dart' as domain;
 import 'package:go_router/go_router.dart';
 
 class PrivateNotesList extends StatefulWidget {
+
   const PrivateNotesList({super.key});
 
   @override
@@ -136,7 +137,7 @@ class _PrivateNotesListState extends State<PrivateNotesList> {
       child: ListTile(
         onTap: () {
           //PrivateNotes
-          context.go('/private_notes');
+          context.go('/private_notes', extra: note);
         },
         title: Text(
           note.title,
