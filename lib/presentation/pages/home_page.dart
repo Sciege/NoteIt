@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:notes_it/presentation/pages/notes_page.dart';
-import 'package:notes_it/presentation/pages/private_notes.dart';
-import 'package:notes_it/presentation/pages/private_notes_list.dart';
-import 'package:notes_it/presentation/pages/todolist_page.dart';
-import 'package:notes_it/presentation/pages/todos_page.dart';
+import 'package:notes_it/presentation/widgets/home_page_widgets/NoteCard.dart';
+import 'package:notes_it/presentation/widgets/home_page_widgets/PrivateCard.dart';
+import 'package:notes_it/presentation/widgets/home_page_widgets/Tabs.dart';
+import 'package:notes_it/presentation/widgets/home_page_widgets/TodosCard.dart';
 
 //notes
 import '../../data/mapper/note_mapper.dart';
@@ -20,6 +19,9 @@ import '../../domain/models/todolist.dart' as domainTodo;
 import '../../core/services/local_auth_service.dart';
 import 'package:go_router/go_router.dart';
 
+// widgets
+import '../widgets/home_page_widgets/FloatingActionBottomBar.dart';
+
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -29,16 +31,21 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   Color lockColor = Colors.grey;
-  int _selectedTab = 0; // Changes when clicked
+  int _currentTab = 0; // Changes when clicked
   final ScrollController _scrollController = ScrollController();
+  final _authService = LocalAuthService();
 
-  final _authServices = LocalAuthService();
-
-  Future _handleLock() async {
-    bool authenticated = await _authServices.authenticateWithBiometrics();
-    if (authenticated) {
+  Future<void> _handleLock() async {
+    final authenticated = await _authService.authenticateWithBiometrics();
+    if (authenticated && mounted) {
       context.go('/private_notes_list');
     }
+  }
+
+  void _onSelectedTab(int index) {
+    setState(() {
+      _currentTab = index;
+    });
   }
 
   @override
@@ -71,7 +78,20 @@ class _HomePageState extends State<HomePage> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 15),
               child: Row(
-                children: [_buildTab('All', 0), _buildTab('Pinned', 1)],
+                children: [
+                  Tabs(
+                    head: 'All',
+                    ind: 0,
+                    selectedTab: _onSelectedTab,
+                    currentTab: _currentTab,
+                  ),
+                  Tabs(
+                    head: 'Pinned',
+                    ind: 1,
+                    selectedTab: _onSelectedTab,
+                    currentTab: _currentTab,
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 20),
@@ -100,7 +120,7 @@ class _HomePageState extends State<HomePage> {
                     );
                   }).toList();
 
-                  final displayedNotes = _selectedTab == 0
+                  final displayedNotes = _currentTab == 0
                       ? domainNotes.reversed.toList()
                       : domainNotes.reversed
                             .where((note) => note.isPinned)
@@ -109,7 +129,7 @@ class _HomePageState extends State<HomePage> {
                   if (displayedNotes.isEmpty) {
                     return Center(
                       child: Text(
-                        _selectedTab == 1
+                        _currentTab == 1
                             ? "No pinned notes."
                             : "You don't have any notes yet.",
                         style: const TextStyle(color: Colors.white),
@@ -126,164 +146,25 @@ class _HomePageState extends State<HomePage> {
               child: Row(
                 children: [
                   //_buildTodoList(screenHeight, screenWidth, hiveTodo),
-                  _todosCard(screenHeight, screenWidth),
+                  TodosCard(
+                    screenHeight: screenHeight,
+                    screenWidth: screenWidth,
+                  ),
                   const Spacer(),
-                  _buildPrivate(screenHeight, screenWidth),
+                  Privatecard(
+                    screenHeight: screenHeight,
+                    screenWidth: screenWidth,
+                    //  lockColor: lockColor,
+                    onUnlock: _handleLock,
+                  ),
                 ],
               ),
             ),
           ],
         ),
       ),
-      floatingActionButton: _buildFloatingActionBottomBar(),
+      floatingActionButton: FloatingActionBottomBar(handleLock: _handleLock),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-    );
-  }
-
-  Widget _buildtoDoCard(domainTodo.Todolist todo) {
-    return Card(
-      color: const Color(0xFF202020),
-      margin: const EdgeInsets.symmetric(horizontal: 1, vertical: 5),
-      child: ListTile(
-        horizontalTitleGap: 0,
-        contentPadding: EdgeInsets.zero,
-        onTap: () {
-          //TodolistPage
-          context.go('/todolist_page', extra: todo);
-        },
-        leading: Checkbox(
-          value: todo.isDone,
-          activeColor: const Color(0xFFF6D14C),
-          onChanged: (bool? value) {
-            // Toggle completion
-            // todo.isDone = value ?? false;
-            // todo.save(); // Save to Hive
-            final updatedTodo = todo.copyWith(isDone: value ?? false);
-
-            // Convert to Hive entity
-            final hiveTodo_ = updatedTodo.toEntity();
-
-            // Save to Hive
-            final box = Hive.box<hiveTodo.Todolist>('todos');
-            box.put(todo.key, hiveTodo_);
-          },
-        ),
-        title: Text(
-          todo.todolist.length >= 8
-              ? todo.todolist.substring(0, 8) + '...'
-              : todo.todolist,
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-            decoration: todo.isDone ? TextDecoration.lineThrough : null,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _todosCard(screenHeight, screenWidth) {
-    return Container(
-      height: screenHeight * 0.3,
-      width: screenWidth * 0.41,
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: const Color(0xFF242424),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: ValueListenableBuilder<Box<hiveTodo.Todolist>>(
-        valueListenable: Hive.box<hiveTodo.Todolist>('todos').listenable(),
-        builder: (context, box, _) {
-          // Filter not done
-          //TODO
-          final domainTodos = box.keys.map((key) {
-            final hiveTodo_ = box.get(key)!;
-            return domainTodo.Todolist(
-              key: key,
-              todolist: hiveTodo_.todoList,
-              description: hiveTodo_.description,
-              isDone: hiveTodo_.isDone,
-            );
-          }).toList();
-
-          final activeTodos = domainTodos
-              .where((todo) => !todo.isDone)
-              .toList();
-
-          Widget contentWidget;
-          if (activeTodos.isEmpty) {
-            contentWidget = const Center(
-              child: Text(
-                'No active todos',
-                style: TextStyle(color: Color(0xFFF6D14C), fontSize: 12),
-                textAlign: TextAlign.center,
-              ),
-            );
-          } else {
-            contentWidget = ListView.builder(
-              itemCount: activeTodos.length,
-              itemBuilder: (context, index) {
-                final todo = activeTodos[index];
-                return _buildtoDoCard(todo);
-              },
-            );
-          }
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // THE PERMANENT TITLE
-              TextButton(
-                onPressed: () {
-                  //TodosPage
-                  context.go('/todos_page');
-                },
-                child: Text(
-                  'Todos',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 5),
-              Expanded(child: contentWidget),
-            ],
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildPrivate(double screenHeight, double screenWidth) {
-    return Container(
-      height: screenHeight * 0.3,
-      width: screenWidth * 0.41,
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: const Color(0xFF242424),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Center(
-        child: GestureDetector(
-          onTapDown: (_) {
-            setState(() {
-              lockColor = const Color(0xFFF6D14C); // Yellow
-            });
-          },
-          onTapCancel: () {
-            setState(() {
-              lockColor = Colors.grey;
-            });
-          },
-          child: IconButton(
-            color: lockColor,
-            onPressed: _handleLock,
-            iconSize: 30,
-            icon: Icon(Icons.lock_outline),
-          ),
-        ),
-      ),
     );
   }
 
@@ -293,140 +174,8 @@ class _HomePageState extends State<HomePage> {
       itemCount: displayedNotes.length,
       itemBuilder: (context, index) {
         final note = displayedNotes[index];
-        return _buildNoteCard(note);
+        return Notecard(note: note);
       },
-    );
-  }
-
-  Widget _buildNoteCard(domain.Note note) {
-    return Card(
-      color: const Color(0xFF202020),
-      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      child: ListTile(
-        onTap: () {
-          //NotesPage
-          context.go('/notes_page', extra: note);
-        },
-        title: Text(
-          note.title,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        subtitle: Text(
-          // Have max characters trailing
-          note.content.length >= 15
-              ? note.content.substring(0, 15) + '...'
-              : note.content,
-          //note.content,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: const TextStyle(color: Colors.grey),
-        ),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            IconButton(
-              icon: Icon(
-                note.isPinned ? Icons.push_pin : Icons.push_pin_outlined,
-                color: note.isPinned ? const Color(0xFFF6D14C) : Colors.grey,
-              ),
-              onPressed: () {
-                final updatedDomainNote = note.copyWith(
-                  isPinned: !note.isPinned,
-                );
-                final hiveNote = updatedDomainNote.toEntity();
-                Hive.box<hive.Note>('notes').put(note.key, hiveNote);
-              },
-            ),
-            IconButton(
-              icon: const Icon(Icons.delete, color: Colors.grey),
-              onPressed: () {
-                Hive.box<hive.Note>('notes').delete(note.key);
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTab(String text, int index) {
-    bool isSelected = _selectedTab == index;
-    return GestureDetector(
-      onTap: () => setState(() => _selectedTab = index),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        margin: const EdgeInsets.symmetric(horizontal: 5),
-        decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFFF6D14C) : const Color(0xFF202020),
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Text(
-          text,
-          style: TextStyle(
-            color: isSelected ? Colors.black : Colors.grey,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildFloatingActionBottomBar() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 60),
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-      decoration: BoxDecoration(
-        color: const Color(0xFF202020),
-        borderRadius: BorderRadius.circular(30),
-      ),
-      child: SizedBox(
-        width: double.infinity,
-        child: Row(
-          children: [
-            IconButton(
-              icon: const Icon(Icons.check_box_outlined, color: Colors.white),
-              onPressed: () {
-                //TodolistPage
-                context.go('/todolist_page');
-              },
-            ),
-
-            const Spacer(),
-            Container(
-              padding: const EdgeInsets.all(5),
-              decoration: const BoxDecoration(
-                color: Color(0xFFF6D14C),
-                shape: BoxShape.circle,
-              ),
-              child: IconButton(
-                icon: const Icon(
-                  Icons.edit_outlined,
-                  color: Colors.black,
-                  size: 25,
-                ),
-
-                onPressed: () {
-                  //NotesPage
-                  context.go('/notes_page');
-                },
-              ),
-            ),
-
-            const Spacer(),
-            IconButton(
-              icon: const Icon(Icons.lock_outline, color: Colors.white),
-              onPressed: () {
-                _handleLock();
-              },
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
