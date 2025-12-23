@@ -16,11 +16,13 @@ class TodolistPage extends StatefulWidget {
 }
 
 class _TodolistPageState extends State<TodolistPage> {
-  final _titleTodoController = TextEditingController();
-  final _descriptionController = TextEditingController();
+  late TextEditingController _titleTodoController;
+  late TextEditingController _descriptionController;
 
   @override
   void initState() {
+    _titleTodoController = TextEditingController();
+    _descriptionController = TextEditingController();
     super.initState();
     if (widget.todos != null) {
       _titleTodoController.text = widget.todos!.todolist;

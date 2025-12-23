@@ -18,13 +18,16 @@ class PrivateNotes extends StatefulWidget {
 }
 
 class _PrivateNotesState extends State<PrivateNotes> {
-  final ScrollController _scrollController = ScrollController();
-  final _titleNotesController = TextEditingController();
-  final _descriptionController = TextEditingController();
+  late ScrollController _scrollController;
+  late TextEditingController _titleNotesController;
+  late TextEditingController _descriptionController;
   int _wordCount = 0;
 
   @override
   void initState() {
+    _scrollController = ScrollController();
+    _titleNotesController = TextEditingController();
+    _descriptionController = TextEditingController();
     super.initState();
     if (widget.privateNotes != null) {
       _titleNotesController.text = widget.privateNotes!.title;
@@ -32,7 +35,10 @@ class _PrivateNotesState extends State<PrivateNotes> {
     }
     _descriptionController.addListener(() {
       setState(() {
-        _wordCount = _descriptionController.text.split(RegExp(r'\s+')).where((word) => word.isNotEmpty).length;
+        _wordCount = _descriptionController.text
+            .split(RegExp(r'\s+'))
+            .where((word) => word.isNotEmpty)
+            .length;
       });
     });
   }
@@ -45,9 +51,10 @@ class _PrivateNotesState extends State<PrivateNotes> {
     super.dispose();
   }
 
-  void back(){
+  void back() {
     return context.go('/private_notes_list');
   }
+
   void savePrivNotes() {
     final privTitleText = _titleNotesController.text.trim();
     final privContentText = _descriptionController.text;
@@ -66,7 +73,7 @@ class _PrivateNotesState extends State<PrivateNotes> {
         );
         return;
       } else {
-       context.go('/private_notes_list');
+        context.go('/private_notes_list');
         return;
       }
     }

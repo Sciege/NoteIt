@@ -15,14 +15,21 @@ class NotesPage extends StatefulWidget {
 }
 
 class _NotesPageState extends State<NotesPage> {
-  final ScrollController _scrollController = ScrollController();
-  final _titleController = TextEditingController();
-  final _contentController = TextEditingController();
+  // dapat ni late final
+  late ScrollController _scrollController = ScrollController();
+  late TextEditingController _titleController;
+  late TextEditingController _contentController;
   int _wordCount = 0;
 
   @override
   void initState() {
+
+    _scrollController = ScrollController();
+    _titleController = TextEditingController();
+    _contentController = TextEditingController();
     super.initState();
+    //todo
+    //dapat naa dani sulod sa init and scroll title and all
     if (widget.note != null) {
       _titleController.text = widget.note!.title;
       _contentController.text = widget.note!.content;
@@ -43,6 +50,7 @@ class _NotesPageState extends State<NotesPage> {
   void dispose() {
     _titleController.dispose();
     _contentController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
