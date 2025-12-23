@@ -37,8 +37,13 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _handleLock() async {
     final authenticated = await _authService.authenticateWithBiometrics();
-    if (authenticated && mounted) {
-      context.go('/private_notes_list');
+    try {
+      if (authenticated && mounted) {
+        context.go('/private_notes_list');
+        print('success');
+      }
+    }catch(e){
+      print('fail');
     }
   }
 

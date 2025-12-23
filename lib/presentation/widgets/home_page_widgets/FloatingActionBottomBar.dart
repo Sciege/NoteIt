@@ -1,10 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-class FloatingActionBottomBar extends StatelessWidget {
+class FloatingActionBottomBar extends StatefulWidget {
   final Future<void> Function() handleLock;
 
   const FloatingActionBottomBar({super.key, required this.handleLock});
+
+  @override
+  State<FloatingActionBottomBar> createState() =>
+      _FloatingActionBottomBarState();
+}
+
+class _FloatingActionBottomBarState extends State<FloatingActionBottomBar> {
+
+  // Future<void > onTap() async {
+  //  try{
+  //    await widget.handleLock;
+  //    print('trying to unlock');
+  //  }catch(e){
+  //    print('Error tapping: {$e}');
+  //  }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -51,8 +67,11 @@ class FloatingActionBottomBar extends StatelessWidget {
             const Spacer(),
             IconButton(
               icon: const Icon(Icons.lock_outline, color: Colors.white),
-              onPressed: () {
-                handleLock;
+              onPressed: () async {
+                // todo: REMEMBER
+                // widget.handleLock() and widget.handleLock is not the same
+                widget.handleLock();
+               // print('tapping');
               },
             ),
           ],

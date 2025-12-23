@@ -23,14 +23,13 @@ class _PrivatecardState extends State<Privatecard> {
   Color lockColor = Colors.grey;
 
   Future<void> _handleTap() async {
-    // 1. Show pressed (yellow) immediately
+
     setState(() => lockColor = const Color(0xFFF6D14C));
 
-    // 2. Run authentication
-    try {
+        try {
       await widget.onUnlock();
     } finally {
-      // 3. Always go back to grey — even if auth fails or is cancelled
+      //go back to grey even if auth fails or is cancelled
       if (mounted) {
         setState(() => lockColor = Colors.grey);
       }

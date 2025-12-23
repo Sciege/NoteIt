@@ -32,7 +32,7 @@ class _PrivateNotesListState extends State<PrivateNotesList> {
       appBar: AppBar(
         leading: IconButton(
           onPressed: () {
-           context.go('/');
+            context.go('/');
           },
           icon: const Icon(Icons.arrow_back),
         ),
@@ -65,7 +65,10 @@ class _PrivateNotesListState extends State<PrivateNotesList> {
               // ),
               const SizedBox(height: 20),
               SizedBox(
-                height: MediaQuery.of(context).size.height * 0.8,
+                height: MediaQuery
+                    .of(context)
+                    .size
+                    .height * 0.8,
                 child: ValueListenableBuilder<Box<hive.PrivNotes>>(
                   valueListenable: Hive.box<hive.PrivNotes>(
                     'priv_notes',
@@ -182,64 +185,6 @@ class _PrivateNotesListState extends State<PrivateNotesList> {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildFloatingActionBottomBar() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 150),
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-      decoration: BoxDecoration(
-        color: const Color(0xFF202020),
-        borderRadius: BorderRadius.circular(30),
-      ),
-      child: SizedBox(
-        width: double.infinity,
-        child:
-            // IconButton(
-            //   icon: const Icon(Icons.check_box_outlined, color: Colors.white),
-            //   onPressed: () {
-            //     Navigator.push(
-            //       context,
-            //       MaterialPageRoute(builder: (context) => TodolistPage()),
-            //     );
-            //   },
-            // ),
-            //
-            // const Spacer(),
-            Container(
-              padding: const EdgeInsets.all(5),
-              decoration: const BoxDecoration(
-                color: Color(0xFFF6D14C),
-                shape: BoxShape.circle,
-              ),
-              child: IconButton(
-                icon: const Icon(
-                  Icons.edit_outlined,
-                  color: Colors.black,
-                  size: 25,
-                ),
-
-                onPressed: () {
-                  //PrivateNotes
-                  context.go('/private_notes');
-                },
-              ),
-            ),
-
-        //
-        // const Spacer(),
-        // IconButton(
-        //   icon: const Icon(Icons.lock_outline, color: Colors.white),
-        //   onPressed: () {
-        //     Navigator.push(
-        //       context,
-        //       //todo set up
-        //       MaterialPageRoute(builder: (context) => TodolistPage()),
-        //     );
-        //   },
-        // ),
       ),
     );
   }
