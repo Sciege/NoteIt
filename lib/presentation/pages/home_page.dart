@@ -29,6 +29,8 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
+String _searchQuery = '';
+
 class _HomePageState extends State<HomePage> {
   Color lockColor = Colors.grey;
   int _currentTab = 0; // Changes when clicked
@@ -42,9 +44,16 @@ class _HomePageState extends State<HomePage> {
         context.go('/private_notes_list');
         print('success');
       }
-    }catch(e){
+    } catch (e) {
       print('fail');
     }
+  }
+
+  @override
+  void initState() {
+    // TODO: fetch notes
+    //fetchNotes();
+    super.initState();
   }
 
   void _onSelectedTab(int index) {
@@ -52,6 +61,35 @@ class _HomePageState extends State<HomePage> {
       _currentTab = index;
     });
   }
+
+  // Future fetchNotes() async {
+  //   final box = Hive.box<hive.Note>('notes');
+  //   try {
+  //     final hiveNotes = box.values.toList();
+  //     final domainNotes = hiveNotes.map((hiveNote) {
+  //       return domain.Note(
+  //         key: hiveNote.key,
+  //         title: hiveNote.title,
+  //         content: hiveNote.content,
+  //         isPinned: hiveNote.isPinned,
+  //       );
+  //     }).toList();
+  //     return domainNotes;
+  //   } catch (e) {
+  //     print('Error fetching notes: $e');
+  //     return [];
+  //   }
+  // }
+  //
+  // List<domain.Note> filteredNotes(required String query) {
+  //   final box = Hive.box<hive.Note>('notes');
+  //   final hiveNotes = box.values.toList();
+  //   if (hiveNotes.isEmpty){
+  //     return [];
+  //   }else{
+  //
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -65,18 +103,61 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           children: [
             // Title
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 24),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'Your Notes',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Row(
+                //alignment: Alignment.centerLeft,
+                children: [
+                  Text(
+                    'Your Notes',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
+                  SizedBox(width: 20),
+                  Expanded(
+                    child: SizedBox(
+                      height: 35,
+                      child: TextField(
+                        onChanged: (value) {
+                          // solution : just wrap the query to setstate since we want it to change
+                          setState(() {
+                            _searchQuery = value.trim().toLowerCase();
+                          });
+                          //_searchQuery = value.trim().toLowerCase();
+                        },
+                        decoration: InputDecoration(
+                          isDense: false,
+                          hintText: 'Search',
+                          focusColor: Colors.grey,
+                          hintStyle: TextStyle(
+                            color: Colors.grey,
+                            fontSize: 15,
+                          ),
+                          prefixIcon: const Icon(
+                            Icons.search,
+                            size: 15,
+                            color: Colors.grey,
+                          ),
+                          // border: OutlineInputBorder(
+                          //   borderRadius: BorderRadius.circular(30),
+                          // ),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Color(0xFF202020), width: 0),
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          border: UnderlineInputBorder(
+                            borderSide: BorderSide(color: Color(0xFF202020), width: 0),
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 20),
@@ -125,22 +206,40 @@ class _HomePageState extends State<HomePage> {
                     );
                   }).toList();
 
-                  final displayedNotes = _currentTab == 0
+                  // this is the holder of the notes so call it or set it
+                  var displayedNotes = _currentTab == 0
                       ? domainNotes.reversed.toList()
                       : domainNotes.reversed
                             .where((note) => note.isPinned)
                             .toList();
 
+                  if (_searchQuery.isNotEmpty) {
+                    final filteredNotes = _searchQuery
+                        .split(' ')
+                        .where((test) => test.isNotEmpty)
+                        .toList();
+                    displayedNotes = displayedNotes.where((note) {
+                      final noteText = '${note.title} ${note.content}'
+                          .toLowerCase();
+                      return filteredNotes.every(
+                        (term) => noteText.contains(term),
+                      );
+                    }).toList();
+                  }
+
                   if (displayedNotes.isEmpty) {
                     return Center(
                       child: Text(
-                        _currentTab == 1
-                            ? "No pinned notes."
-                            : "You don't have any notes yet.",
+                        _searchQuery.isNotEmpty
+                            ? "No matching notes."
+                            : (_currentTab == 1
+                                  ? "No pinned notes."
+                                  : "You don't have any notes yet."),
                         style: const TextStyle(color: Colors.white),
                       ),
                     );
                   }
+
                   return _buildNotesList(displayedNotes);
                 },
               ),
@@ -150,7 +249,6 @@ class _HomePageState extends State<HomePage> {
               padding: const EdgeInsets.symmetric(horizontal: 24.0),
               child: Row(
                 children: [
-                  //_buildTodoList(screenHeight, screenWidth, hiveTodo),
                   TodosCard(
                     screenHeight: screenHeight,
                     screenWidth: screenWidth,
@@ -159,7 +257,6 @@ class _HomePageState extends State<HomePage> {
                   Privatecard(
                     screenHeight: screenHeight,
                     screenWidth: screenWidth,
-                    //  lockColor: lockColor,
                     onUnlock: _handleLock,
                   ),
                 ],
